@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stacked Bar Chart Example</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <svg id="chart"></svg>
+  <script>
+    const data = [
+      [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 }],        
+      [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 }],
+      [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2000 },{ Key: 'OPC', Value: 4000 }],
+      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 }],
+      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 100 }],
+    ];
+
+    // Define the margin, width, and height of the chart
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    // Create the SVG element and set its dimensions
+    const svg = d3.select("#chart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Define the x and y scales
+    const xScale = d3.scaleBand()
+      .range([0, width])
+      .padding(0.1)
+      .domain(data.map(d => d[0].Value));
+    
+    const yScale = d3.scaleLinear()
+      .range([height, 0])
+      .domain([0, d3.max(data, d => d3.sum(d, e => e.Value))]);
+
+    // Define the color scale
+    const colorScale = d3.scaleOrdinal()
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"]);
+
+    // Define the stack generator
+    const stack = d3.stack()
+      .keys(data[0].slice(1).map(d => d.Key))
+      .value((d, key) => d.find(e => e.Key === key).Value);
+
+    // Define the bars for each group
+    const bars = svg.selectAll(".bar-group")
+    .data(stack(data))
+    .join("g")
+    .attr("class", "bar-group")
+    .attr("fill", d => colorScale(d.key));
+	bars.selectAll("rect")
+  .data(d => d)
+  .join("rect")
+  .attr("x", d => xScale(d.data[0].Value))
+  .attr("y", d => yScale(d[1]))
+  .attr("height", d => yScale(d[0]) - yScale(d[1]))
+  .attr("width", xScale.bandwidth());
+
+  // Define the x and y axis
+  const xAxis = d3.axisBottom(xScale);
+  const yAxis = d3.axisLeft(yScale).ticks(10);
+
+  // Append the x axis to the chart
+  svg.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(xAxis);
+
+  // Append the y axis to the chart
+  svg.append("g")
+    .call(yAxis)
+    .append("text")
+    .attr("fill", "#000")
+    .attr("x", 2)
+    .attr("y", yScale(yScale.ticks().pop()) + 0.5)
+    .attr("dy", "0.32em")
+    .attr("text-anchor", "start")
+    .attr("font-size", "12px")
+    .text("Value");
+</script>
+</body>
+</html>
