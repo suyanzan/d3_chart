@@ -66,17 +66,17 @@
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
       .attr("width", xScale.bandwidth());
 
-  // Define the x and y axis
-  const xAxis = d3.axisBottom(xScale);
-  const yAxis = d3.axisLeft(yScale).ticks(10);
+    // Define the x and y axis
+   const xAxis = d3.axisBottom(xScale);
+   const yAxis = d3.axisLeft(yScale).ticks(10);
 
-  // Append the x axis to the chart
-  svg.append("g")
+   // Append the x axis to the chart
+   svg.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(xAxis);
 
-  // Append the y axis to the chart
-  svg.append("g")
+   // Append the y axis to the chart
+   svg.append("g")
     .call(yAxis)
     .append("text")
     .attr("fill", "#000")
