@@ -23,7 +23,8 @@
     ];
 
     // Define the margin, width, and height of the chart
-    const margin = { top: 20, right: 100, bottom: 30, left: 40 };
+    // modify chart size extra space
+    const margin = { top: 30, right: 100, bottom: 30, left: 40 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -74,14 +75,18 @@
       .attr("width", xScale.bandwidth());
 
     // Add text labels for the sum values
-    bars.selectAll("text")
+    // Add text labels for the sum values
+    bars.selectAll(".sum-label")
       .data(d => d)
       .join("text")
-      .attr("class", "sum-label") // Add class to text element
+      .attr("class", "sum-label")
       .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value) + xScale.bandwidth() / 2)
-      .attr("y", d => yScale(d[1]) - 5)
+      .attr("y", d => yScale(d[1]) - 10) // Adjust the vertical position of the label
       .attr("text-anchor", "middle")
       .text(d => d3.sum(d.data.filter(p => p.Key !== 'PDAY'), e => e.Value));
+
+
+
     // Define the x and y axis
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale).ticks(10);
@@ -96,12 +101,12 @@
       .call(yAxis)
       .append("text")
       .attr("fill", "#000")
-      .attr("x", 2)
-      .attr("y", yScale(yScale.ticks().pop()) + 0.5)
+      .attr("x", -10)
+      .attr("y", -10) // Adjust the value to change the vertical position
       .attr("dy", "0.32em")
       .attr("text-anchor", "start")
       .attr("font-size", "12px")
-      .text("Value");
+      .text("License");
       
      // Create an array of objects containing the unique values of each key and the corresponding color
     const legendData = uniqueKeys.map(key => {
