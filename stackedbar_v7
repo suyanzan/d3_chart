@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<script>
+var margin = {top:10, right: 10, bottom: 80, left: 50},
+    width =960,
+    height=650;
+var svg = d3.select("body")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var fData =
+[{"orders":"A","Total_Orders":76,"A_Lines":123,"B_Lines":0,"C_Lines":0,"D_Lines":0,"Total_Lines":123,"Total_Units":3267},
+{"orders":"B","Total_Orders":68,"A_Lines":0,"B_Lines":107,"C_Lines":0,"D_Lines":0,"Total_Lines":107,"Total_Units":3115},
+{"orders":"C","Total_Orders":81,"A_Lines":0,"B_Lines":0,"C_Lines":123,"D_Lines":0,"Total_Lines":123,"Total_Units":3690},
+{"orders":"D","Total_Orders":113,"A_Lines":0,"B_Lines":0,"C_Lines":0,"D_Lines":203,"Total_Lines":203,"Total_Units":7863},
+{"orders":"AB","Total_Orders":62,"A_Lines":70,"B_Lines":76,"C_Lines":0,"D_Lines":0,"Total_Lines":146,"Total_Units":1739},
+{"orders":"AC","Total_Orders":64,"A_Lines":77,"B_Lines":0,"C_Lines":79,"D_Lines":0,"Total_Lines":156,"Total_Units":2027},
+{"orders":"AD","Total_Orders":100,"A_Lines":127,"B_Lines":0,"C_Lines":0,"D_Lines":144,"Total_Lines":271,"Total_Units":6467},
+{"orders":"BC","Total_Orders":64,"A_Lines":0,"B_Lines":80,"C_Lines":84,"D_Lines":0,"Total_Lines":164,"Total_Units":1845},
+{"orders":"BD","Total_Orders":91,"A_Lines":0,"B_Lines":108,"C_Lines":0,"D_Lines":135,"Total_Lines":243,"Total_Units":4061},
+{"orders":"CD","Total_Orders":111,"A_Lines":0,"B_Lines":0,"C_Lines":132,"D_Lines":147,"Total_Lines":279,"Total_Units":5011},
+{"orders":"ABC","Total_Orders":45,"A_Lines":58,"B_Lines":63,"C_Lines":55,"D_Lines":0,"Total_Lines":176,"Total_Units":1245},
+{"orders":"ABD","Total_Orders":69,"A_Lines":105,"B_Lines":87,"C_Lines":0,"D_Lines":116,"Total_Lines":308,"Total_Units":4538},
+{"orders":"ACD","Total_Orders":66,"A_Lines":91,"B_Lines":0,"C_Lines":88,"D_Lines":132,"Total_Lines":311,"Total_Units":4446},
+{"orders":"BCD","Total_Orders":68,"A_Lines":0,"B_Lines":84,"C_Lines":95,"D_Lines":111,"Total_Lines":290,"Total_Units":4187},
+{"orders":"ABCD","Total_Orders":56,"A_Lines":96,"B_Lines":90,"C_Lines":93,"D_Lines":143,"Total_Lines":422,"Total_Units":6331}]
+;
+
+var headers = ["A_Lines", "B_Lines", "C_Lines", "D_Lines"];
+var colors = ["#9999CC", "#F7A35C", "#99CC99", "#CCCC99"];
+var colorScale = d3.scaleOrdinal()
+  .domain(headers)
+  .range(colors);
+var layers = d3.stack().keys(headers)(fData);
+var yStackMax = d3.max(layers, layer => d3.max(layer, d => d[1]));
+
+var xScale = d3.scaleBand()
+  .domain(fData.map(d => d.orders))
+  .range([25, width])
+  .padding(0.08);
+
+var y = d3.scaleLinear()
+  .domain([0, yStackMax])
+  .range([height, 0]);
+
+var xAxis = d3.axisBottom(xScale)
+  .tickSize(1)
+  .tickPadding(6);
+
+var yAxis = d3.axisLeft(y)
+  .tickFormat(d3.format(".2s"));
+
+var layer = svg.selectAll(".layer")
+  .data(layers)
+  .join("g")
+  .attr("class", "layer")
+  .style("fill", (d, i) => colorScale(i));
+
+var rect = layer.selectAll("rect")
+  .data(d => d)
+  .join("rect")
+  .attr("x", d => xScale(d.orders))
+  .attr("y", height)
+  .attr("width", xScale.bandwidth())
+  .attr("height", 0)
+  .attr("class", function(d, i) {
+    return "rect bordered " + "color-" + colorScale(headers[i]).substring(1);
+  });
+  
+layer.selectAll("text.rect")
+  .data(fData)
+  .join("text")
+  .attr("text-anchor", "middle")
+  .attr("x", d => xScale(d.orders) + xScale.bandwidth() / 2)
+  .attr("y", d => y(d.Total_Lines) - 3)
+  .text(d => d.Total_Lines)
+  .style("fill", "4682b4");
+
+
+
+
+
+svg.append("g")
+  .attr("class", "x axis")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis)
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .attr("dx", "-.8em")
+  .attr("dy", ".15em")
+  .attr("transform", "rotate(-45)");
+
+svg.append("text")
+  .attr("class", "x axis")
+  .attr("text-anchor", "end")
+  .attr("transform", "translate("+ (width / 2) + "," + (height + 60) + ")")
+  .text("Order Velocity Group");
+
+svg.append("g")
+  .attr("class", "y axis")
+  .attr("transform", "translate(20,0)")
+  .call(yAxis)
+  .append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("x", -75)
+  .attr("y", -70)
+  .attr("dy", ".75em")
+  .style("text-anchor", "end")
+  .text("No. Of Lines");
+
+var legend = svg.selectAll(".legend")
+  .data(headers)
+  .join("g")
+  .attr("class", "legend")
+  .attr("transform", (d, i) => "translate(" + (headers.length - (i + 1)) * -100 + "," + (height + 50) + ")");
+
+legend.append("rect")
+  .attr("x", width - 18)
+  .attr("width", 18)
+  .attr("height", 18)
+  .style("fill", (d, i) => colors[i])
+  .on("mouseover", (d, i) => {
+    const color = d3.color(colors[i]);
+    if (color) {
+      svg.selectAll("rect.color-" + color.formatHex()).style("stroke", "blue");
+    }
+  })
+  .on("mouseout", (d, i) => {
+    const color = d3.color(colors[i]);
+    if (color) {
+      svg.selectAll("rect.color-" + color.formatHex()).style("stroke", "white");
+    }
+  });
+
+
+legend.append("text")
+  .attr("x", width - 24)
+  .attr("y", 9)
+  .attr("dy", ".35em")
+  .style("text-anchor", "end")
+  .text(d => d);
+
+transitionStacked();
+
+function transitionStacked() {
+  y.domain([0, yStackMax]);
+
+  rect.transition()
+    .duration(500)
+    .delay((d, i) => i * 10)
+    .attr("y", d => y(d[1]))
+    .attr("height", d => y(d[0]) - y(d[1]))
+    .transition()
+    .attr("x", d => xScale(d.data.orders))
+    .attr("width", xScale.bandwidth());
+}
+</script>
+</body>
+</html>
+
+
+
+
