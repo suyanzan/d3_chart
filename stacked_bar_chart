@@ -97,7 +97,7 @@ const yScaleLicense = d3.scaleLinear()
     const stack = d3.stack()
       .keys(filteredData[0].slice(1).map(d => d.Key))
       .value((d, key) => d.find(e => e.Key === key).Value);
-	// Define the bars for each group
+    // Define the bars for each group
     const bars = svg.selectAll(".bar-group")
       .data(stack(data))
       .join("g")
@@ -109,7 +109,10 @@ const yScaleLicense = d3.scaleLinear()
       .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value))
       .attr("y", d => yScale(d[1]))
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
-      .attr("width", xScale.bandwidth());
+      .attr("width", xScale.bandwidth())
+      .attr("class", (d, i) => {
+        return "rect bordered color-" +  customColors(d).substring(1);
+      });
 
 
     // Add text labels for the sum values
@@ -201,3 +204,4 @@ const line = d3.line()
 </script>
 </body>
 </html>
+
