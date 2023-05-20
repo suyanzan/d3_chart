@@ -35,6 +35,34 @@ var fData =
 
 var headers = ["A_Lines", "B_Lines", "C_Lines", "D_Lines"];
 var colors = ["#9999CC", "#F7A35C", "#99CC99", "#CCCC99"];
+
+// Define the number of colors you want to generate
+var numberOfColors = headers.length;
+
+// Function to generate unique colors
+function generateUniqueColors(count) {
+  var colors = [];
+  for (var i = 0; i < count; i++) {
+    var color = getRandomColor();
+    while (colors.includes(color)) {
+      // If the color already exists in the array, generate a new one
+      color = getRandomColor();
+    }
+    colors.push(color);
+  }
+  return colors;
+}
+
+// Function to generate a random color
+function getRandomColor() {
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+// Generate unique colors
 var colorScale = d3.scaleOrdinal()
   .domain(headers)
   .range(colors);
