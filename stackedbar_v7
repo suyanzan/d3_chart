@@ -62,7 +62,10 @@ function getRandomColor() {
   }
   return color;
 }
+
 // Generate unique colors
+var colors = generateUniqueColors(numberOfColors);
+
 var colorScale = d3.scaleOrdinal()
   .domain(headers)
   .range(colors);
