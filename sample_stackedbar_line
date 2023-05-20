@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stacked Bar and Line Chart with D3.js</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+  <svg width="500" height="300"></svg>
+
+  <script>
+    // Sample data
+    var dataset = [
+      { month: "Jan", apples: 20, oranges: 10, bananas: 15, revenue: 100 },
+      { month: "Feb", apples: 15, oranges: 12, bananas: 10, revenue: 120 },
+      { month: "Mar", apples: 25, oranges: 8, bananas: 20, revenue: 90 },
+      { month: "Apr", apples: 30, oranges: 15, bananas: 10, revenue: 80 },
+      { month: "May", apples: 18, oranges: 10, bananas: 8, revenue: 110 }
+    ];
+
+    // Set up dimensions and margins for the chart
+    var margin = { top: 20, right: 30, bottom: 30, left: 50 };
+    var width = 500 - margin.left - margin.right;
+    var height = 300 - margin.top - margin.bottom;
+
+    // Create SVG element
+    var svg = d3.select("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Create scales for x and y axes
+    var xScale = d3.scaleBand()
+      .domain(dataset.map(function(d) { return d.month; }))
+      .range([0, width])
+      .padding(0.1);
+
+    var yScale1 = d3.scaleLinear()
+      .domain([0, d3.max(dataset, function(d) { return d.apples + d.oranges + d.bananas; })])
+      .range([height, 0]);
+
+    var yScale2 = d3.scaleLinear()
+      .domain([0, d3.max(dataset, function(d) { return d.revenue; })])
+      .range([height, 0]);
+
+    // Create axes
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis1 = d3.axisLeft(yScale1);
+    var yAxis2 = d3.axisRight(yScale2);
+
+    // Add x-axis
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+    // Add y-axes
+    svg.append("g")
+      .attr("class", "y-axis1")
+      .call(yAxis1);
+
+    svg.append("g")
+      .attr("class", "y-axis2")
+      .attr("transform", "translate(" + width + ", 0)")
+      .call(yAxis2);
+
+    // Create stacked bar chart
+    var stackedBars = svg.selectAll(".stacked-bar")
+      .data(dataset)
+      .enter().append("g")
+      .attr("class", "stacked-bar");
+
+    stackedBars.selectAll("rect")
+      .data(function(d) { return [d.apples, d.oranges, d.bananas]; })
+      .enter().append("rect")
+      .attr("x", function(d, i) { return xScale(d3.select(this.parentNode).datum().month); })
+      .attr("y", function(d) { return yScale1(d); })
+      .attr("width", xScale.bandwidth())
+      .attr("height", function(d) { return height - yScale1(d); })
+      .attr("fill", function(d, i) { return ["#9999CC", "#F7A35C", "#99CC99"][i]; });
+
+    // Create line chart
+    var line = d3.line()
+      .x(function(d) { return xScale(d.month) + xScale.bandwidth() / 2; })
+      .y(function(d) { return yScale2(d.revenue); });
+
+    svg.append("path")
+      .datum(dataset)
+      .attr("class", "line")
+      .attr("d", line)
+      .attr("fill", "none")
+      .attr("stroke", "red");
+
+  </script>
+</body>
+</html>
