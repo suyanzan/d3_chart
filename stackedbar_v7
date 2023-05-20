@@ -34,7 +34,7 @@ var fData =
 ;
 
 var headers = ["A_Lines", "B_Lines", "C_Lines", "D_Lines"];
-var colors = ["#9999CC", "#F7A35C", "#99CC99", "#CCCC99"];
+//var colors = ["#9999CC", "#F7A35C", "#99CC99", "#CCCC99"];
 
 // Define the number of colors you want to generate
 var numberOfColors = headers.length;
