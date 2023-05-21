@@ -15,11 +15,11 @@
   <svg id="chart"></svg>
   <script>
     const data = [
-      [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 6200 },{ Key: 'License', Value: 8500 }],        
-      [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 },{ Key: 'Total', Value: 2100 },{ Key: 'License', Value: 8500 }],
-      [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 3100 },{ Key: 'PRC', Value: 2000 },{ Key: 'OPC', Value: 4000 },{ Key: 'Total', Value: 9600 },{ Key: 'License', Value: 8500 }],
-      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 },{ Key: 'Total', Value: 3200 },{ Key: 'License', Value: 8500 }],
-      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 5900 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 7200 },{ Key: 'License', Value: 8500 }],        
+      [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 },{ Key: 'Total', Value: 3100 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 3100 },{ Key: 'PRC', Value: 2000 },{ Key: 'OPC', Value: 4000 },{ Key: 'Total', Value: 10600 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 },{ Key: 'Total', Value: 4200 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 6900 },{ Key: 'License', Value: 8500 }],
     ];
 
     // Define the margin, width, and height of the chart
@@ -95,7 +95,7 @@ const yScaleLicense = d3.scaleLinear()
 	
     // Define the stack generator
     const stack = d3.stack()
-      .keys(filteredData[0].slice(1).map(d => d.Key))
+      .keys(filteredData[0].slice(0).map(d => d.Key))
       .value((d, key) => d.find(e => e.Key === key).Value);
     // Define the bars for each group
     const bars = svg.selectAll(".bar-group")
@@ -110,8 +110,9 @@ const yScaleLicense = d3.scaleLinear()
       .attr("y", d => yScale(d[1]))
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
       .attr("width", xScale.bandwidth())
-      .attr("class", (d, i) => {
-        return "rect bordered color-" +  customColors(d).substring(1);
+      .attr("class", (d, i, nodes) => {
+        const barGroupColor = d3.select(nodes[i].parentNode).attr("fill");
+        return "rect bordered color-" + barGroupColor.substring(1);
       });
 
 
@@ -121,7 +122,7 @@ const yScaleLicense = d3.scaleLinear()
       .join("text")
       .attr("class", "sum-label")
       .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value) + xScale.bandwidth() / 2)
-      .attr("y", d => yScale(d.data.find(p => p.Key === 'Total').Value)+10) // Adjust the vertical position of the label
+      .attr("y", d => yScale(d.data.find(p => p.Key === 'Total').Value)-10) // Adjust the vertical position of the label
       .attr("text-anchor", "middle")
       .text(d => d.data.find(p => p.Key === 'Total').Value);
 
@@ -157,6 +158,7 @@ const line = d3.line()
   .attr("class", "line")
   .attr("d", line)
   .attr("fill", "none")
+  .attr("stroke-width", 3) // Increase the stroke width to make it bold
   .attr("stroke", "#7fc3ff");
      // Create an array of objects containing the unique values of each key and the corresponding color
     const legendData = uniqueKeys.map(key => {
@@ -186,7 +188,8 @@ const line = d3.line()
       .attr("fill", d => customColors(d))
       .on("mouseover", (event, d, i) => {
         svg.selectAll("rect.color-" + customColors(d).substring(1))
-          .attr("stroke", "red");
+          .attr("stroke-width", 2) // Increase the stroke width to make it bold
+          .attr("stroke", "black");
       })
       .on("mouseout", (event, d, i) => {
         svg.selectAll("rect.color-" + customColors(d).substring(1))
@@ -204,4 +207,3 @@ const line = d3.line()
 </script>
 </body>
 </html>
-
