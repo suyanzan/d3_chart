@@ -10,9 +10,18 @@
     fill: blue; /* Text color */
     font-weight: bold; /* Bold font */
   }
+  .tooltip {
+  position: absolute;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  pointer-events: none;
+ }
 </style>
 <body>
   <svg id="chart"></svg>
+  <div id="chart-content"></div>
   <script>
     const data = [
       [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 7200 },{ Key: 'License', Value: 8500 }],        
@@ -38,6 +47,12 @@
     const filteredData = data.map(d => d.filter(p => (p.Key !== 'PDAY' && p.Key !== 'Total'&& p.Key !== 'License')));
 const chartData = data.map(d => d.filter(p => (p.Key !== 'PDAY' && p.Key !== 'License')));
 
+const tooltip = d3
+  .select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+  
 // Extract the 'License' values from the data
 const licenseValues = data.map(d => d.find(e => e.Key === 'License').Value);
 
@@ -109,10 +124,30 @@ const yScaleLicense = d3.scaleLinear()
       .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value))
       .attr("y", d => yScale(d[1]))
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
-      .attr("width", xScale.bandwidth())
+      .attr("width", xScale.bandwidth())  
       .attr("class", (d, i, nodes) => {
         const barGroupColor = d3.select(nodes[i].parentNode).attr("fill");
         return "rect bordered color-" + barGroupColor.substring(1);
+      })
+      .on("mouseover", function (event, d) {
+        const category = d.data.find((item) => item.Key === 'PDAY').Value;
+        const value = d[1] - d[0];
+        const tooltipHtml = `
+          <div>Day: ${category}</div>
+          <div>${this.parentNode.__data__.key}: ${value}</div>
+        `;
+	
+      // Show the tooltip
+      tooltip.transition().duration(200).style("opacity", 0.9);
+      tooltip
+          .html(tooltipHtml)
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px")
+          .style("opacity", 0.9);
+      })
+      .on("mouseout", function (event, d) {
+      // Hide the tooltip
+        tooltip.transition().duration(200).style("opacity", 0);
       });
 
 
@@ -148,25 +183,25 @@ const yScaleLicense = d3.scaleLinear()
       .attr("text-anchor", "start")
       .attr("font-size", "12px")
       .text("License");
-  // Create line chart
-const line = d3.line()
-  .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
-  .y(d => yScale(d.find(e => e.Key === 'License').Value));
-  
-  svg.append("path")
-  .datum(data)
-  .attr("class", "line")
-  .attr("d", line)
-  .attr("fill", "none")
-  .attr("stroke-width", 3) // Increase the stroke width to make it bold
-  .attr("stroke", "#7fc3ff");
-     // Create an array of objects containing the unique values of each key and the corresponding color
-    const legendData = uniqueKeys.map(key => {
-      return {
-        key: key,
-        color: customColors(key),
-        value: filteredData[0].find(p => p.Key === key).Value
-      }
+    // Create line chart
+    const line = d3.line()
+      .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.find(e => e.Key === 'License').Value));
+
+    svg.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line)
+    .attr("fill", "none")
+    .attr("stroke-width", 3) // Increase the stroke width to make it bold
+    .attr("stroke", "#7fc3ff");
+       // Create an array of objects containing the unique values of each key and the 			       corresponding color
+      const legendData = uniqueKeys.map(key => {
+        return {
+          key: key,
+          color: customColors(key),
+          value: filteredData[0].find(p => p.Key === key).Value
+        }
     });
     // Define the legend group
     const legend = svg.append("g")
@@ -203,7 +238,8 @@ const line = d3.line()
       .attr("y", 10)
       .attr("dominant-baseline", "middle")
   	  .text(d => d);
-    
+      
+
 </script>
 </body>
 </html>
