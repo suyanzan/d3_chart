@@ -1,2 +1,94 @@
  legends with horizontal pagination
 https://codepen.io/peeyush-pant/pen/vYBdOrw
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .legend-container {
+      height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="legend-container">
+    <ul class="legend"></ul>
+  </div>
+  <div class="pagination">
+    <button class="previous">Previous</button>
+    <span class="page-indicator"></span>
+    <button class="next">Next</button>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    const legendItems = [
+      { label: "Item 1", color: "red" },
+      { label: "Item 2", color: "blue" },
+      { label: "Item 3", color: "green" },
+      // Add more legend items...
+    ];
+
+    const itemsPerPage = 2; // Number of legend items per page
+    let currentPage = 1;
+
+    const legendContainer = d3.select(".legend-container");
+    const legend = legendContainer.select(".legend");
+    const previousButton = d3.select(".previous");
+    const nextButton = d3.select(".next");
+    const pageIndicator = d3.select(".page-indicator");
+
+    function renderLegend() {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const itemsToShow = legendItems.slice(startIndex, endIndex);
+
+      legend.html(""); // Clear previous items
+
+      itemsToShow.forEach((item) => {
+        const li = legend.append("li")
+          .style("color", item.color)
+          .text(item.label);
+      });
+
+      updatePageIndicator();
+    }
+
+    function updatePageIndicator() {
+      pageIndicator.text(`Page ${currentPage}`);
+    }
+
+    function updatePaginationButtons() {
+      previousButton.attr("disabled", currentPage === 1);
+      nextButton.attr("disabled", currentPage === getTotalPages());
+    }
+
+    function getTotalPages() {
+      return Math.ceil(legendItems.length / itemsPerPage);
+    }
+
+    function goToPreviousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderLegend();
+        updatePaginationButtons();
+      }
+    }
+
+    function goToNextPage() {
+      if (currentPage < getTotalPages()) {
+        currentPage++;
+        renderLegend();
+        updatePaginationButtons();
+      }
+    }
+
+    previousButton.on("click", goToPreviousPage);
+    nextButton.on("click", goToNextPage);
+
+    renderLegend();
+    updatePaginationButtons();
+  </script>
+</body>
+</html>
