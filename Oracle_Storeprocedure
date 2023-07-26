@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using System.Data.OracleClient;
+using System.Data.OracleClient; // Deprecated, use ODP.NET for newer versions of .NET
 using System.Configuration;
 using Dapper;
 
@@ -17,8 +17,8 @@ public class OracleDataAccess
                 dbConnection.Open();
 
                 // Define the parameters for the stored procedure.
-                var parameters = new DynamicParameters();
-                parameters.Add("parameterName", parameterValue, DbType.Int32, ParameterDirection.Input);
+                var parameters = new OracleDynamicParameters();
+                parameters.Add("parameterName", parameterValue, OracleMappingType.Int32, ParameterDirection.Input);
 
                 // Execute the stored procedure. Replace "YourStoredProcedure" with the actual stored procedure name.
                 dbConnection.Execute("YourStoredProcedure", parameters, commandType: CommandType.StoredProcedure);
