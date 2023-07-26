@@ -1,1 +1,37 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+using Dapper;
+
+public class OracleDataAccess
+{
+    // Replace "YourModel" with the appropriate model if the stored procedure returns data.
+    public static void ExecuteOracleStoredProcedureWithParameters(int parameterValue)
+    {
+        // Replace "OracleConnection" with the name you used in the connection string.
+        using (IDbConnection dbConnection = new OracleConnection(ConfigurationManager.ConnectionStrings["OracleConnection"].ConnectionString))
+        {
+            try
+            {
+                dbConnection.Open();
+
+                // Define the parameters for the stored procedure.
+                var parameters = new OracleDynamicParameters();
+                parameters.Add("parameterName", parameterValue, DbType.Int32, ParameterDirection.Input);
+
+                // Execute the stored procedure. Replace "YourStoredProcedure" with the actual stored procedure name.
+                dbConnection.Execute("YourStoredProcedure", parameters, commandType: CommandType.StoredProcedure);
+
+                // If the stored procedure returns data, you can retrieve it like this:
+                // List<YourModel> results = dbConnection.Query<YourModel>("YourStoredProcedure", parameters, commandType: CommandType.StoredProcedure).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions.
+                Console.WriteLine("Error executing stored procedure: " + ex.Message);
+            }
+        }
+    }
+}
 
