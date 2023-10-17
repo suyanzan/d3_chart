@@ -196,6 +196,35 @@ const yScaleLicense = d3.scaleLinear()
     .attr("stroke-width", 3) // Increase the stroke width to make it bold
     .attr("stroke", "#7fc3ff");
        // Create an array of objects containing the unique values of each key and the 			       corresponding color
+       
+    svg.selectAll(".dot")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.find(e => e.Key === 'License').Value))
+      .attr("r", 3)
+      .on("mouseover", function (event, d) {
+       //const category = d.data.find((item) => item.Key === 'PDAY').Value;
+      // Show the tooltip
+      tooltip.transition().duration(200).style("opacity", 0.9);
+      const tooltipHtml = `
+          <div>Day:10/15</div>
+          <div>License:8500</div>
+        `;
+      tooltip
+          .html(tooltipHtml)
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px")
+          .style("opacity", 0.9);
+      })
+     .on("mouseout", function (event, d) {
+      // Hide the tooltip
+        tooltip.transition().duration(200).style("opacity", 0);
+      });
+
+      
       const legendData = uniqueKeys.map(key => {
         return {
           key: key,
