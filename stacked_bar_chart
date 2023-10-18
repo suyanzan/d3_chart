@@ -27,8 +27,8 @@
       [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 7200 },{ Key: 'License', Value: 8500 }],        
       [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 },{ Key: 'Total', Value: 3100 },{ Key: 'License', Value: 8500 }],
       [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 3100 },{ Key: 'PRC', Value: 2000 },{ Key: 'OPC', Value: 4000 },{ Key: 'Total', Value: 10600 },{ Key: 'License', Value: 8500 }],
-      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 },{ Key: 'Total', Value: 4200 },{ Key: 'License', Value: 8500 }],
-      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 6900 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 },{ Key: 'Total', Value: 4200 },{ Key: 'License', Value: 10500 }],
+      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 6900 },{ Key: 'License', Value: 9500 }],
     ];
 
     // Define the margin, width, and height of the chart
@@ -208,10 +208,12 @@ const yScaleLicense = d3.scaleLinear()
       .on("mouseover", function (event, d) {
        //const category = d.data.find((item) => item.Key === 'PDAY').Value;
       // Show the tooltip
-      tooltip.transition().duration(200).style("opacity", 0.9);
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      //const cxValue = d3.select(this).attr("cx");//x-axis座標值
+      //const cyValue = d3.select(this).attr("cy");//y-axis座標值
       const tooltipHtml = `
-          <div>Day:10/15</div>
-          <div>License:8500</div>
+          <div>Day:${d[0].Value}</div>
+          <div>License:${d.find(e => e.Key === 'License').Value}</div>
         `;
       tooltip
           .html(tooltipHtml)
@@ -221,7 +223,7 @@ const yScaleLicense = d3.scaleLinear()
       })
      .on("mouseout", function (event, d) {
       // Hide the tooltip
-        tooltip.transition().duration(200).style("opacity", 0);
+        tooltip.transition().duration(0).style("opacity", 0);
       });
 
       
