@@ -205,6 +205,7 @@ const yScaleLicense = d3.scaleLinear()
       .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
       .attr("cy", d => yScale(d.find(e => e.Key === 'License').Value))
       .attr("r", 3)
+      .attr("fill", "#7fc3ff")
       .on("mouseover", function (event, d) {
        //const category = d.data.find((item) => item.Key === 'PDAY').Value;
       // Show the tooltip
