@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <div id="legend">
+      <ul id="legend-list">
+        <!-- Legend items will be added here dynamically -->
+      </ul>
+      <div id="pagination"></div>
+    </div>
+  </body>
+  <script>
+  // Sample data for the legend
+const legendData = [
+  'Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5',
+  'Item 6', 'Item 7', 'Item 8', 'Item 9', 'Item 10',
+  // Add more items as needed
+];
+
+const itemsPerPage = 2; // Number of items to display per page
+let currentPage = 1; // Current page
+
+// Function to update the legend items based on the current page
+function updateLegend() {
+  const legendList = d3.select('#legend-list');
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, legendData.length);
+
+  legendList.html(''); // Clear the legend
+
+  for (let i = startIndex; i < endIndex; i++) {
+    legendList.append('li').text(legendData[i]);
+  }
+}
+
+// Initialize the legend with the first page
+updateLegend();
+
+// Function to handle page navigation
+function navigateToPage(page) {
+  currentPage = page;
+  updateLegend();
+  updatePagination();
+}
+
+// Function to update the pagination controls
+function updatePagination() {
+  const totalPages = Math.ceil(legendData.length / itemsPerPage);
+  const pagination = d3.select('#pagination');
+  pagination.html('');
+
+  for (let i = 1; i <= totalPages; i++) {
+    pagination
+      .append('button')
+      .text(i)
+      .on('click', () => navigateToPage(i));
+  }
+}
+
+// Initialize pagination controls
+updatePagination();
+
+  </script>
+</html>
