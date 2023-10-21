@@ -31,11 +31,12 @@
       [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 6900 },{ Key: 'License', Value: 9500 }],
     ];
     
-    const data2 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'METAL1', Value: 1500 }],
-                  [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'METAL2', Value: 1200 }],
-                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
-                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
-                  [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]],];
+    const data2 = [[[{ Key: 'OPC', Value: '2023-05-06' }, { Key: 'METAL1', Value: 1500 }],
+    [{ Key: 'PLRC', Value: '2023-05-06' }, { Key: 'METAL1', Value: 150 }],
+                  [{ Key: 'OPC', Value: '2023-05-07' }, { Key: 'METAL2', Value: 1200 }],
+                  [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
+                  [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
+                  [{ Key: 'OPC', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]]];
 
     // Define the margin, width, and height of the chart
     // modify chart size extra space
@@ -126,8 +127,9 @@ const yScaleLicense = d3.scaleLinear()
       .attr("fill", d => customColors(d.key));
       
 // Function to get data2 by PDAY
-function getData2ByPDAY(PDAY) {
-  const matchingData = data2[0].find(d => d[0].Value === PDAY);
+function getData2ByPDAY(PDAY,TYPE) {
+  //find 只找第一筆 改用filter
+  const matchingData = data2[0].filter(d => d[0].Value === PDAY && d[0].Key === TYPE);
   if (matchingData) {
     return matchingData;
   }
@@ -150,21 +152,25 @@ function getData2ByPDAY(PDAY) {
       .on("mouseover", function (event, d) {
         const pday = d.data.find((item) => item.Key === 'PDAY').Value;
         const value = d[1] - d[0];
+        const type= this.parentNode.__data__.key;
         var tooltipHtml = `
           <div>Day: ${pday}</div>
-          <div>${this.parentNode.__data__.key}: ${value}</div>
+          <div>${type}: ${value}</div>
         `;
         
       
     // Get data2 for the same PDAY
-    const PDAYData2 = getData2ByPDAY(pday);
+    const PDAYData2 = getData2ByPDAY(pday,type);
 
 // Add data2 information to the tooltip
 if (PDAYData2.length > 0) {
-  //tooltipHtml += "<div>Data2:</div>";
-  PDAYData2.forEach(item => {
-  	if(item.Key !="PDAY")
+  tooltipHtml += "<div>Detail:</div>";
+  PDAYData2.forEach(innerArray => {
+  innerArray.forEach(item => {
+    if (item.Key !== type) {
       tooltipHtml += `<div>${item.Key}: ${item.Value}</div>`;
+    }
+  });
   });
 }
 
