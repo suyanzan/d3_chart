@@ -37,7 +37,7 @@
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
                   [{ Key: 'OPC', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]]];
-   const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
+	const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
                   [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'ADD_MTSL', Value: 14000 }],
                   [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'ADD_MTSL', Value: 14000 }],
                   [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'ADD_MTSL', Value: 11850 }],
@@ -324,6 +324,7 @@ if (PDAYData2.length > 0) {
     .attr("d", line2)
     .attr("fill", "none")
     .attr("stroke-width", 3)
+        .attr("stroke-dasharray", "5,5")
     .attr("stroke", "#ff7f0e"); // Change the color if desired
 
   // Append circles for each data point of data3
@@ -343,7 +344,7 @@ if (PDAYData2.length > 0) {
       tooltip.transition().duration(0).style("opacity", 0.9);
       const tooltipHtml = `
         <div>Day:${pday}</div>
-        <div>Additional Metal:${value}</div>
+        <div>License add MTSL:${value}</div>
       `;
       tooltip
         .html(tooltipHtml)
@@ -355,6 +356,37 @@ if (PDAYData2.length > 0) {
       // Hide the tooltip
       tooltip.transition().duration(0).style("opacity", 0);
     });  
+    
+    // Optionally, add a legend for the new line
+const legendItems2 = legend.selectAll(".legend-item2")
+  .data([{ key: "Other Line", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item2")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 20})`);
+
+// Add a colored rectangle to the legend item for data3
+legendItems2.append("rect")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("width", 15)
+  .attr("height", 15)
+  .attr("fill", d => d.color)
+  .on("mouseover", (event, d, i) => {
+    svg.selectAll("rect.color-" + d.color.substring(1))
+      .attr("stroke-width", 2) // Increase the stroke width to make it bold
+      .attr("stroke", "black");
+  })
+  .on("mouseout", (event, d, i) => {
+    svg.selectAll("rect.color-" + d.color.substring(1))
+      .attr("stroke", "white");
+  });
+
+// Add text to the legend item for data3
+legendItems2.append("text")
+  .attr("x", 20)
+  .attr("y", 10)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
 </script>
 </body>
 </html>
