@@ -37,7 +37,7 @@
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
                   [{ Key: 'OPC', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]]];
-	const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
+   const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
                   [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'ADD_MTSL', Value: 14000 }],
                   [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'ADD_MTSL', Value: 14000 }],
                   [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'ADD_MTSL', Value: 11850 }],
