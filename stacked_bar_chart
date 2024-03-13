@@ -37,7 +37,11 @@
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
                   [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
                   [{ Key: 'OPC', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]]];
-
+	const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'ADD_MTSL', Value: 14000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'ADD_MTSL', Value: 14000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'ADD_MTSL', Value: 11850 }],
+                  [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'ADD_MTSL', Value: 11850 }]]];
     // Define the margin, width, and height of the chart
     // modify chart size extra space
     const margin = { top: 30, right: 100, bottom: 30, left: 40 };
@@ -234,7 +238,7 @@ if (PDAYData2.length > 0) {
     .attr("stroke-width", 3) // Increase the stroke width to make it bold
     .attr("stroke", "#7fc3ff");
        // Create an array of objects containing the unique values of each key and the 			       corresponding color
-       
+      
     svg.selectAll(".dot")
       .data(data)
       .enter()
@@ -308,8 +312,49 @@ if (PDAYData2.length > 0) {
       .attr("y", 10)
       .attr("dominant-baseline", "middle")
   	  .text(d => d);
-      
+    // Define the line generator for data3
+  const line2 = d3.line()
+    .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .y(d => yScale(d.find(e => e.Key === 'ADD_MTSL').Value));
 
+  // Append the path element for the second line chart
+  svg.append("path")
+    .datum(data3[0])
+    .attr("class", "line")
+    .attr("d", line2)
+    .attr("fill", "none")
+    .attr("stroke-width", 3)
+    .attr("stroke", "#ff7f0e"); // Change the color if desired
+
+  // Append circles for each data point of data3
+  svg.selectAll(".dot2")
+    .data(data3[0])
+    .enter()
+    .append("circle")
+    .attr("class", "dot2")
+    .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .attr("cy", d => yScale(d.find(e => e.Key === 'ADD_MTSL').Value))
+    .attr("r", 3)
+    .attr("fill", "#ff7f0e") // Change the color if desired
+    .on("mouseover", function (event, d) {
+      const pday = d.find((item) => item.Key === 'PDAY').Value;
+      const value = d.find(e => e.Key === 'ADD_MTSL').Value;
+      // Show the tooltip
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      const tooltipHtml = `
+        <div>Day:${pday}</div>
+        <div>Additional Metal:${value}</div>
+      `;
+      tooltip
+        .html(tooltipHtml)
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY + "px")
+        .style("opacity", 0.9);
+    })
+    .on("mouseout", function (event, d) {
+      // Hide the tooltip
+      tooltip.transition().duration(0).style("opacity", 0);
+    });  
 </script>
 </body>
 </html>
