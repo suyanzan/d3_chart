@@ -42,9 +42,14 @@
                   [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'ADD_MTSL', Value: 14000 }],
                   [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'ADD_MTSL', Value: 11850 }],
                   [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'ADD_MTSL', Value: 11850 }]]];
+    const data4 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'OPC_Rate', Value: "100%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'OPC_Rate', Value: "80%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'OPC_Rate', Value: "10%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'OPC_Rate', Value: "70%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'OPC_Rate', Value: "40%" }]]];
     // Define the margin, width, and height of the chart
     // modify chart size extra space
-    const margin = { top: 30, right: 100, bottom: 30, left: 40 };
+    const margin = { top: 30, right: 130, bottom: 30, left: 40 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -190,6 +195,7 @@ if (PDAYData2.length > 0) {
       .on("mouseout", function (event, d) {
       // Hide the tooltip
         tooltip.transition().duration(200).style("opacity", 0);
+        d3.select("#tooltip").remove();
       });
 
 
@@ -199,7 +205,7 @@ if (PDAYData2.length > 0) {
       .join("text")
       .attr("class", "sum-label")
       .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value) + xScale.bandwidth() / 2)
-      .attr("y", d => yScale(d.data.find(p => p.Key === 'Total').Value)-10) // Adjust the vertical position of the label
+      .attr("y", d => yScale(d.data.find(p => p.Key === 'Total').Value)+15) // Adjust the vertical position of the label
       .attr("text-anchor", "middle")
       .text(d => d.data.find(p => p.Key === 'Total').Value);
 
@@ -267,6 +273,7 @@ if (PDAYData2.length > 0) {
      .on("mouseout", function (event, d) {
       // Hide the tooltip
         tooltip.transition().duration(0).style("opacity", 0);
+        d3.select("#tooltip").remove();
       });
 
       
@@ -355,31 +362,25 @@ if (PDAYData2.length > 0) {
     .on("mouseout", function (event, d) {
       // Hide the tooltip
       tooltip.transition().duration(0).style("opacity", 0);
+      d3.select("#tooltip").remove();
     });  
     
     // Optionally, add a legend for the new line
 const legendItems2 = legend.selectAll(".legend-item2")
-  .data([{ key: "Other Line", color: "#ff7f0e" }])
+  .data([{ key: "Add MTSL", color: "#ff7f0e" }])
   .join("g")
   .attr("class", "legend-item2")
   .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 20})`);
 
 // Add a colored rectangle to the legend item for data3
-legendItems2.append("rect")
-  .attr("x", 0)
-  .attr("y", 0)
-  .attr("width", 15)
-  .attr("height", 15)
-  .attr("fill", d => d.color)
-  .on("mouseover", (event, d, i) => {
-    svg.selectAll("rect.color-" + d.color.substring(1))
-      .attr("stroke-width", 2) // Increase the stroke width to make it bold
-      .attr("stroke", "black");
-  })
-  .on("mouseout", (event, d, i) => {
-    svg.selectAll("rect.color-" + d.color.substring(1))
-      .attr("stroke", "white");
-  });
+legendItems2.append("line")
+  .attr("x1", 0)
+  .attr("y1", 10)
+  .attr("x2", 15)
+  .attr("y2", 10)
+  //.attr("fill", d => d.color)
+  .attr("stroke-dasharray", "5,5")
+  .style("stroke", d => d.color);
 
 // Add text to the legend item for data3
 legendItems2.append("text")
@@ -387,6 +388,130 @@ legendItems2.append("text")
   .attr("y", 10)
   .attr("dominant-baseline", "middle")
   .text(d => d.key);
+ // Add a colored rectangle to the legend item for data3
+     // Optionally, add a legend for the new line
+const legendItems3 = legend.selectAll(".legend-item3")
+  .data([{ key: "License", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item3")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 25})`);
+legendItems3.append("line")
+  .attr("x1", 0)
+  .attr("y1", 12)
+  .attr("x2", 15)
+  .attr("y2", 12)
+  //.attr("fill", d => d.color)
+  .style("stroke", "#7fc3ff");
+// Add text to the legend item for data3
+legendItems3.append("text")
+  .attr("x", 20)
+  .attr("y", 10)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
+const legendItems4 = legend.selectAll(".legend-item4")
+  .data([{ key: "OPC_Rate", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item4")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 30})`);
+legendItems4.append("line")
+  .attr("x1", 0)
+  .attr("y1", 12)
+  .attr("x2", 15)
+  .attr("y2", 12)
+  //.attr("fill", d => d.color)
+  .style("stroke", "#2ca02c");
+// Add text to the legend item for data3
+legendItems4.append("text")
+  .attr("x", 20)
+  .attr("y", 10)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
+
+  
+   // Define the y-scale for data4
+  const yScaleData4 = d3.scaleLinear()
+    .range([height, 0])
+    .domain([0, d3.max(data4[0], d => +d.find(e => e.Key === 'OPC_Rate').Value.replace('%', ''))]);
+
+  // Define the line generator for data4
+  const lineData4 = d3.line()
+    .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .y(d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')));
+
+  // Append the path element for the line chart (data4)
+  svg.append("path")
+    .datum(data4[0])
+    .attr("class", "line")
+    .attr("d", lineData4)
+    .attr("fill", "none")
+    .attr("stroke-width", 3)
+.transition() // Apply transition for animation
+    .duration(1000) // Set the duration of the animation (in milliseconds)
+    .attr("stroke", "#2ca02c"); // Change the color if desired
+
+  // Append circles for each data point of data4
+  svg.selectAll(".dot3")
+    .data(data4[0])
+    .enter()
+    .append("circle")
+    .attr("class", "dot3")
+    .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .attr("cy", d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')))
+    .attr("r", 3)
+    .attr("fill", "#2ca02c") // Change the color if desired
+    .on("mouseover", function (event, d) {
+      const pday = d.find((item) => item.Key === 'PDAY').Value;
+      const value = d.find(e => e.Key === 'OPC_Rate').Value;
+      // Show the tooltip
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      const tooltipHtml = `
+        <div>Day:${pday}</div>
+        <div>OPC Rate:${value}</div>
+      `;
+      tooltip
+        .html(tooltipHtml)
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY + "px")
+        .style("opacity", 0.9);
+    })
+    .on("mouseout", function (event, d) {
+      // Hide the tooltip
+      tooltip.transition().duration(0).style("opacity", 0);
+      d3.select("#tooltip").remove();
+    });
+
+  // Append the y axis to the right side of the chart for data4
+  svg.append("g")
+    .attr("transform", `translate(${width},0)`)
+    .call(d3.axisRight(yScaleData4))
+    .append("text")
+    .attr("fill", "#000")
+    .attr("x", 10)
+    .attr("y", -10) // Adjust the value to change the vertical position
+    .attr("dy", "0.32em")
+    .attr("text-anchor", "start")
+    .attr("font-size", "12px")
+    
+    .text("OPC Rate");
+    
+    // Append text values for each data point of data4
+// Append text values for each data point of data4 with animation
+svg.selectAll(".text-value")
+  .data(data4[0])
+  .enter()
+  .append("text")
+  .attr("class", "text-value")
+  .attr("x", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+  .attr("y", d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')) - 10) // Adjust the vertical position
+  .attr("dy", "0.32em")
+  .attr("text-anchor", "middle")
+  .attr("font-size", "12px")
+  .text(d => d.find(e => e.Key === 'OPC_Rate').Value)
+  .style("opacity", 0) // Start with opacity 0
+  .transition() // Apply transition
+  .duration(1000) // Duration of animation in milliseconds
+  //.delay((d, i) => i * 200) // Delay each animation by index
+  .style("opacity", 1); // Transition to full opacity
 </script>
 </body>
 </html>
