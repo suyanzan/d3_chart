@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Progress Bar Example</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <style>
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999; /* Ensure the overlay is on top */
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+  <script> 
+    $(document).ready(function(){
+      // Initialize the progress bar
+      $("#progress-bar").progressbar({
+        value: 0,
+        max: 100
+      });
+    setTimeout(() => {
+    $("div").animate({left: '250px'});
+    $("#test").show();
+    }, 2000);
+      // Simulate progress over 2 seconds
+      let progress = 0;
+      let interval = setInterval(() => {
+        progress += 10;
+        $("#progress-bar").progressbar("value", progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          $("#loading-overlay").remove();
+          $("#test").show();
+        }
+      }, 200); // Each step is 200ms, so 2 seconds total
+    });
+  </script>
+</head>
+<body>
+  <!-- Loading overlay with progress bar -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div>
+      Loading, please wait...
+      <div id="progress-bar" style="width: 80%; height: 20px; margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <div id="test" style="background:#98bf21;height:100px;width:100px;position:absolute;display:none"></div>
+
+</body>
+</html>
