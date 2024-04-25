@@ -3,6 +3,9 @@
   <meta charset="utf-8">
   <title>Stacked Bar Chart Example</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 </head>
 <!-- CSS styles-->
 <style>
@@ -18,11 +21,37 @@
   padding: 10px;
   pointer-events: none;
  }
+     .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999; /* Ensure the overlay is on top */
+      font-size: 24px;
+      color: #333;
+    }
 </style>
 <body>
+  <!-- Loading overlay with progress bar -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div>
+      Loading, please wait...
+      <div id="progress-bar" style="width: 80%; height: 20px; margin-top: 10px;"></div>
+    </div>
+  </div>
   <svg id="chart"></svg>
   <div id="chart-content"></div>
   <script>
+        $("#progress-bar").progressbar({
+        value: 0,
+        max: 100
+      });
+          setTimeout(() => {
     const data = [
       [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 7200 },{ Key: 'License', Value: 8500 }],        
       [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 },{ Key: 'Total', Value: 3100 },{ Key: 'License', Value: 8500 }],
@@ -512,6 +541,18 @@ svg.selectAll(".text-value")
   .duration(1000) // Duration of animation in milliseconds
   //.delay((d, i) => i * 200) // Delay each animation by index
   .style("opacity", 1); // Transition to full opacity
+      }, 2000);
+        // Simulate progress over 2 seconds
+      let progress = 0;
+      let interval = setInterval(() => {
+        progress += 10;
+        $("#progress-bar").progressbar("value", progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          $("#loading-overlay").remove();
+          $("#test").show();
+        }
+      }, 200); // Each step is 200ms, so 2 seconds total
 </script>
 </body>
 </html>
