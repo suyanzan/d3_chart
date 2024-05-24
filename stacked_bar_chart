@@ -246,7 +246,7 @@ if (PDAYData2.length > 0) {
     .attr("fill", "none")
     .attr("stroke-width", 3) // Increase the stroke width to make it bold
     .attr("stroke", "#7fc3ff");
-       // Create an array of objects containing the unique values of each key and the 			       corresponding color
+       // Create an array of objects containing the unique values of each key and the 	   corresponding color
       
     svg.selectAll(".dot")
       .data(data)
