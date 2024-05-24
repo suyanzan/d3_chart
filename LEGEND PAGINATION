@@ -61,6 +61,11 @@
                   [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'OPC_Rate', Value: "10%" }],
                   [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'OPC_Rate', Value: "70%" }],
                   [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'OPC_Rate', Value: "40%" }]]];
+                  
+                          const data5 = [[ { Key: 'PLRC', Value: "" }],
+                  [{ Key: 'LRC', Value: "80%" }],
+                  [{ Key: 'OPC', Value: "10%" }],
+                  [ { Key: 'PRC', Value: "70%" }]];
     // Define the margin, width, and height of the chart
     // modify chart size extra space
     const margin = { top: 30, right: 130, bottom: 30, left: 40 };
@@ -581,8 +586,18 @@ svg.selectAll(".text-value")
         .attr("x", 20)
         .attr("y", 10)
         .attr("dominant-baseline", "middle")
-        .text(d => d.key);
-      
+        //.text(d => d.key);
+      .text(d => {
+    const dataItem = data5.find(item => item[0].Key === d.key);
+    if (dataItem) {
+      if (dataItem[0].Value === "") {
+        return d.key;
+      } else {
+        return `${d.key}-${dataItem[0].Value}`;
+      }
+    } else {
+      return ""; // Handle cases where no corresponding data is found
+    }});
       // Render legend pagination controls
       renderPaginationControls();
     }
