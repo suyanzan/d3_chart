@@ -4,8 +4,10 @@
   <title>Stacked Bar Chart Example</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!--
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  -->
 </head>
 <!-- CSS styles-->
 <style>
@@ -527,7 +529,7 @@ svg.selectAll(".text-value")
   // Your existing code goes here...
   
   // Define the number of items per page for legend pagination
-    const itemsPerPage = 3;
+    const itemsPerPage = 2;
     
     // Calculate the total number of legend items
     const totalLegendItems = legendData.length;
@@ -595,9 +597,10 @@ svg.selectAll(".text-value")
         // Append previous page button
         legend.append("text")
           .attr("class", "legend-pagination")
+          .attr("fill", "#007FAE")
           .attr("x", 0)
-          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 10 : 0)
-          .text("Previous")
+          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 3 : 0)
+.text("\u25C0") // Unicode for left arrow icon
           .on("click", () => {
             if (currentPage > 1) {
               currentPage--;
@@ -608,9 +611,10 @@ svg.selectAll(".text-value")
         // Append next page button
         legend.append("text")
           .attr("class", "legend-pagination")
-          .attr("x", 80)
-          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 10 : 0)
-          .text("Next")
+          .attr("x", 20)
+          .attr("fill", "#007FAE")
+          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 3 : 0)
+       .text("\u25B6") // Unicode for right arrow icon
           .on("click", () => {
             if (currentPage < totalPages) {
               currentPage++;
@@ -627,4 +631,3 @@ svg.selectAll(".text-value")
 </script>
 </body>
 </html>
-
