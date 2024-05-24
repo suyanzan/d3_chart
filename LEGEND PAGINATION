@@ -1,66 +1,630 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div id="legend">
-      <ul id="legend-list">
-        <!-- Legend items will be added here dynamically -->
-      </ul>
-      <div id="pagination"></div>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title>Stacked Bar Chart Example</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+</head>
+<!-- CSS styles-->
+<style>
+  .sum-label {
+    fill: blue; /* Text color */
+    font-weight: bold; /* Bold font */
+  }
+  .tooltip {
+  position: absolute;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  pointer-events: none;
+ }
+  .legend-pagination {
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+  }
+</style>
+<body>
+  <svg id="chart"></svg>
+  <div id="chart-content"></div>
+    <div id="legend-container">
+    <div id="legend"></div>
+    <div id="pagination" class="pagination"></div>
+  </div>
   <script>
-  // Sample data for the legend
-const legendData = [
-  'Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5',
-  'Item 6', 'Item 7', 'Item 8', 'Item 9', 'Item 10',
-  // Add more items as needed
-];
+    const data = [
+      [{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 200 },{ Key: 'OPC', Value: 5400 },{ Key: 'Total', Value: 7200 },{ Key: 'License', Value: 8500 }],        
+      [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 900 },{ Key: 'OPC', Value: 600 },{ Key: 'Total', Value: 3100 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 3100 },{ Key: 'PRC', Value: 2000 },{ Key: 'OPC', Value: 4000 },{ Key: 'Total', Value: 10600 },{ Key: 'License', Value: 8500 }],
+      [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 1200 },{ Key: 'OPC', Value: 1400 },{ Key: 'Total', Value: 4200 },{ Key: 'License', Value: 10500 }],
+      [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'PLRC', Value: 1500 }, { Key: 'LRC', Value: 100 },{ Key: 'PRC', Value: 2200 },{ Key: 'OPC', Value: 3100 },{ Key: 'Total', Value: 6900 },{ Key: 'License', Value: 9500 }],
+    ];
+    
+    const data2 = [[[{ Key: 'OPC', Value: '2023-05-06' }, { Key: 'METAL1', Value: 1500 }],
+    [{ Key: 'PLRC', Value: '2023-05-06' }, { Key: 'METAL1', Value: 150 }],
+                  [{ Key: 'OPC', Value: '2023-05-07' }, { Key: 'METAL2', Value: 1200 }],
+                  [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL3', Value: 1000 }],
+                  [{ Key: 'OPC', Value: '2023-05-08' }, { Key: 'METAL4', Value: 850 }],
+                  [{ Key: 'OPC', Value: '2023-05-10' }, { Key: 'METAL5', Value: 850 }]]];
+	const data3 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'ADD_MTSL', Value: 15000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'ADD_MTSL', Value: 14000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'ADD_MTSL', Value: 14000 }],
+                  [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'ADD_MTSL', Value: 11850 }],
+                  [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'ADD_MTSL', Value: 11850 }]]];
+    const data4 = [[[{ Key: 'PDAY', Value: '2023-05-06' }, { Key: 'OPC_Rate', Value: "100%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-07' }, { Key: 'OPC_Rate', Value: "80%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-08' }, { Key: 'OPC_Rate', Value: "10%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-09' }, { Key: 'OPC_Rate', Value: "70%" }],
+                  [{ Key: 'PDAY', Value: '2023-05-10' }, { Key: 'OPC_Rate', Value: "40%" }]]];
+    // Define the margin, width, and height of the chart
+    // modify chart size extra space
+    const margin = { top: 30, right: 130, bottom: 30, left: 40 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
-const itemsPerPage = 2; // Number of items to display per page
-let currentPage = 1; // Current page
+    // Create the SVG element and set its dimensions
+    const svg = d3.select("#chart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+  // Filter out the objects with the 'PDAY' key
+    const filteredData = data.map(d => d.filter(p => (p.Key !== 'PDAY' && p.Key !== 'Total'&& p.Key !== 'License')));
+const chartData = data.map(d => d.filter(p => (p.Key !== 'PDAY' && p.Key !== 'License')));
 
-// Function to update the legend items based on the current page
-function updateLegend() {
-  const legendList = d3.select('#legend-list');
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, legendData.length);
+const tooltip = d3
+  .select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
-  legendList.html(''); // Clear the legend
+// Extract the 'License' values from the data
+const licenseValues = data.map(d => d.find(e => e.Key === 'License').Value);
 
-  for (let i = startIndex; i < endIndex; i++) {
-    legendList.append('li').text(legendData[i]);
+// Define the y-scale using the extracted 'License' values
+const yScaleLicense = d3.scaleLinear()
+  .range([height, 0])
+  .domain([0, d3.max(licenseValues, d => +d)]);
+    // Define the x and y scales
+    const xScale = d3.scaleBand()
+      .range([0, width])
+      .padding(0.1)
+      .domain(data.map(d => d[0].Value));
+    
+    const yScale = d3.scaleLinear()
+      .range([height, 0])
+      .domain([0, d3.max(chartData, d => d3.sum(d, e => e.Value))]);
+    // Extract unique values of the remaining keys from the filtered data array
+    const uniqueKeys = [...new Set(filteredData.flatMap(d => d.map(p => p.Key)))];
+	
+    // Define the number of colors you want to generate
+    var numberOfColors = uniqueKeys.length;
+
+    // Function to generate unique colors
+    function generateUniqueColors(count) {
+      var colors = [];
+      for (var i = 0; i < count; i++) {
+        var color = getRandomColor();
+        while (colors.includes(color)) {
+          // If the color already exists in the array, generate a new one
+          color = getRandomColor();
+        }
+        colors.push(color);
+      }
+      return colors;
+    }
+
+    // Function to generate a random color
+    function getRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    // Generate unique colors
+    var colors = generateUniqueColors(numberOfColors);
+    
+    // Define a custom color palette based on the unique keys
+    const customColors = d3.scaleOrdinal()
+      .domain(uniqueKeys)
+      .range(colors);
+
+	
+    // Define the stack generator
+    const stack = d3.stack()
+      .keys(filteredData[0].slice(0).map(d => d.Key))
+      .value((d, key) => d.find(e => e.Key === key).Value);
+    // Define the bars for each group
+    const bars = svg.selectAll(".bar-group")
+      .data(stack(data))
+      .join("g")
+      .attr("class", "bar-group")
+      .attr("fill", d => customColors(d.key));
+      
+// Function to get data2 by PDAY
+function getData2ByPDAY(PDAY,TYPE) {
+  //find 只找第一筆 改用filter
+  const matchingData = data2[0].filter(d => d[0].Value === PDAY && d[0].Key === TYPE);
+  if (matchingData) {
+    return matchingData;
   }
+  return [];
 }
 
-// Initialize the legend with the first page
-updateLegend();
 
-// Function to handle page navigation
-function navigateToPage(page) {
-  currentPage = page;
-  updateLegend();
-  updatePagination();
+    
+    bars.selectAll("rect")
+      .data(d => d)
+      .join("rect")
+      .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value))
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(d[0]) - yScale(d[1]))
+      .attr("width", xScale.bandwidth())  
+      .attr("class", (d, i, nodes) => {
+        const barGroupColor = d3.select(nodes[i].parentNode).attr("fill");
+        return "rect bordered color-" + barGroupColor.substring(1);
+      })
+      .on("mouseover", function (event, d) {
+        const pday = d.data.find((item) => item.Key === 'PDAY').Value;
+        const value = d[1] - d[0];
+        const type= this.parentNode.__data__.key;
+        var tooltipHtml = `
+          <div>Day: ${pday}</div>
+          <div>${type}: ${value}</div>
+        `;
+        
+      
+    // Get data2 for the same PDAY
+    const PDAYData2 = getData2ByPDAY(pday,type);
+
+// Add data2 information to the tooltip
+if (PDAYData2.length > 0) {
+  tooltipHtml += "<div>Detail:</div>";
+  PDAYData2.forEach(innerArray => {
+  innerArray.forEach(item => {
+    if (item.Key !== type) {
+      tooltipHtml += `<div>${item.Key}: ${item.Value}</div>`;
+    }
+  });
+  });
 }
 
-// Function to update the pagination controls
-function updatePagination() {
-  const totalPages = Math.ceil(legendData.length / itemsPerPage);
-  const pagination = d3.select('#pagination');
-  pagination.html('');
+    
+      // Show the tooltip
+      tooltip.transition().duration(200).style("opacity", 0.9);
+      tooltip
+          .html(tooltipHtml)
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px")
+          .style("opacity", 0.9);
+      })
+      .on("mouseout", function (event, d) {
+      // Hide the tooltip
+        tooltip.transition().duration(200).style("opacity", 0);
+        d3.select("#tooltip").remove();
+      });
 
-  for (let i = 1; i <= totalPages; i++) {
-    pagination
-      .append('button')
-      .text(i)
-      .on('click', () => navigateToPage(i));
-  }
-}
 
-// Initialize pagination controls
-updatePagination();
+    // Add text labels for the sum values
+    bars.selectAll(".sum-label")
+      .data(d => d)
+      .join("text")
+      .attr("class", "sum-label")
+      .attr("x", d => xScale(d.data.find(p => p.Key === 'PDAY').Value) + xScale.bandwidth() / 2)
+      .attr("y", d => yScale(d.data.find(p => p.Key === 'Total').Value)+15) // Adjust the vertical position of the label
+      .attr("text-anchor", "middle")
+      .text(d => d.data.find(p => p.Key === 'Total').Value);
 
-  </script>
+
+
+    // Define the x and y axis
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale).ticks(10);
+
+    // Append the x axis to the chart
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(xAxis);
+
+    // Append the y axis to the chart
+    svg.append("g")
+      .call(yAxis)
+      .append("text")
+      .attr("fill", "#000")
+      .attr("x", -10)
+      .attr("y", -10) // Adjust the value to change the vertical position
+      .attr("dy", "0.32em")
+      .attr("text-anchor", "start")
+      .attr("font-size", "12px")
+      .text("License");
+    // Create line chart
+    const line = d3.line()
+      .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.find(e => e.Key === 'License').Value));
+
+    svg.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line)
+    .attr("fill", "none")
+    .attr("stroke-width", 3) // Increase the stroke width to make it bold
+    .attr("stroke", "#7fc3ff");
+       // Create an array of objects containing the unique values of each key and the 			       corresponding color
+      
+    svg.selectAll(".dot")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.find(e => e.Key === 'License').Value))
+      .attr("r", 3)
+      .attr("fill", "#7fc3ff")
+      .on("mouseover", function (event, d) {
+       //const category = d.data.find((item) => item.Key === 'PDAY').Value;
+      // Show the tooltip
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      //const cxValue = d3.select(this).attr("cx");//x-axis座標值
+      //const cyValue = d3.select(this).attr("cy");//y-axis座標值
+      const tooltipHtml = `
+          <div>Day:${d[0].Value}</div>
+          <div>License:${d.find(e => e.Key === 'License').Value}</div>
+        `;
+      tooltip
+          .html(tooltipHtml)
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px")
+          .style("opacity", 0.9);
+      })
+     .on("mouseout", function (event, d) {
+      // Hide the tooltip
+        tooltip.transition().duration(0).style("opacity", 0);
+        d3.select("#tooltip").remove();
+      });
+
+      
+      const legendData = uniqueKeys.map(key => {
+        return {
+          key: key,
+          color: customColors(key),
+          value: filteredData[0].find(p => p.Key === key).Value
+        }
+    });
+    // Define the legend group
+    const legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${width + margin.right-100}, ${margin.top})`);
+
+    // Create a legend item for each unique key of the filtered data
+    const legendItems = legend.selectAll(".legend-item")
+      .data(uniqueKeys)
+      .join("g")
+      .attr("class", "legend-item")
+      .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+    // Add a colored rectangle to each legend item
+    legendItems.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", d => customColors(d))
+      .on("mouseover", (event, d, i) => {
+        svg.selectAll("rect.color-" + customColors(d).substring(1))
+          .attr("stroke-width", 2) // Increase the stroke width to make it bold
+          .attr("stroke", "black");
+      })
+      .on("mouseout", (event, d, i) => {
+        svg.selectAll("rect.color-" + customColors(d).substring(1))
+          .attr("stroke", "white");
+      });
+      
+
+    // Add text to each legend item
+    legendItems.append("text")
+      .attr("x", 20)
+      .attr("y", 10)
+      .attr("dominant-baseline", "middle")
+  	  .text(d => d);
+    // Define the line generator for data3
+  const line2 = d3.line()
+    .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .y(d => yScale(d.find(e => e.Key === 'ADD_MTSL').Value));
+
+  // Append the path element for the second line chart
+  svg.append("path")
+    .datum(data3[0])
+    .attr("class", "line")
+    .attr("d", line2)
+    .attr("fill", "none")
+    .attr("stroke-width", 3)
+        .attr("stroke-dasharray", "5,5")
+    .attr("stroke", "#ff7f0e"); // Change the color if desired
+
+  // Append circles for each data point of data3
+  svg.selectAll(".dot2")
+    .data(data3[0])
+    .enter()
+    .append("circle")
+    .attr("class", "dot2")
+    .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .attr("cy", d => yScale(d.find(e => e.Key === 'ADD_MTSL').Value))
+    .attr("r", 3)
+    .attr("fill", "#ff7f0e") // Change the color if desired
+    .on("mouseover", function (event, d) {
+      const pday = d.find((item) => item.Key === 'PDAY').Value;
+      const value = d.find(e => e.Key === 'ADD_MTSL').Value;
+      // Show the tooltip
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      const tooltipHtml = `
+        <div>Day:${pday}</div>
+        <div>License add MTSL:${value}</div>
+      `;
+      tooltip
+        .html(tooltipHtml)
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY + "px")
+        .style("opacity", 0.9);
+    })
+    .on("mouseout", function (event, d) {
+      // Hide the tooltip
+      tooltip.transition().duration(0).style("opacity", 0);
+      d3.select("#tooltip").remove();
+    });  
+    
+    // Optionally, add a legend for the new line
+const legendItems2 = legend.selectAll(".legend-item2")
+  .data([{ key: "Add MTSL", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item2")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 20})`);
+
+// Add a colored rectangle to the legend item for data3
+legendItems2.append("line")
+  .attr("x1", 0)
+  .attr("y1", 30)
+  .attr("x2", 15)
+  .attr("y2", 30)
+  //.attr("fill", d => d.color)
+  .attr("stroke-dasharray", "5,5")
+  .style("stroke", d => d.color);
+
+// Add text to the legend item for data3
+legendItems2.append("text")
+  .attr("x", 20)
+  .attr("y", 30)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
+ // Add a colored rectangle to the legend item for data3
+     // Optionally, add a legend for the new line
+const legendItems3 = legend.selectAll(".legend-item3")
+  .data([{ key: "License", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item3")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 25})`);
+legendItems3.append("line")
+  .attr("x1", 0)
+  .attr("y1", 32)
+  .attr("x2", 15)
+  .attr("y2", 32)
+  //.attr("fill", d => d.color)
+  .style("stroke", "#7fc3ff");
+// Add text to the legend item for data3
+legendItems3.append("text")
+  .attr("x", 20)
+  .attr("y", 30)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
+const legendItems4 = legend.selectAll(".legend-item4")
+  .data([{ key: "OPC_Rate", color: "#ff7f0e" }])
+  .join("g")
+  .attr("class", "legend-item4")
+  .attr("transform", (d, i) => `translate(0, ${(i + uniqueKeys.length) * 30})`);
+legendItems4.append("line")
+  .attr("x1", 0)
+  .attr("y1", 32)
+  .attr("x2", 15)
+  .attr("y2", 32)
+  //.attr("fill", d => d.color)
+  .style("stroke", "#2ca02c");
+// Add text to the legend item for data3
+legendItems4.append("text")
+  .attr("x", 20)
+  .attr("y", 30)
+  .attr("dominant-baseline", "middle")
+  .text(d => d.key);
+
+  
+   // Define the y-scale for data4
+  const yScaleData4 = d3.scaleLinear()
+    .range([height, 0])
+    .domain([0, d3.max(data4[0], d => +d.find(e => e.Key === 'OPC_Rate').Value.replace('%', ''))]);
+
+  // Define the line generator for data4
+  const lineData4 = d3.line()
+    .x(d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .y(d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')));
+
+  // Append the path element for the line chart (data4)
+  svg.append("path")
+    .datum(data4[0])
+    .attr("class", "line")
+    .attr("d", lineData4)
+    .attr("fill", "none")
+    .attr("stroke-width", 3)
+.transition() // Apply transition for animation
+    .duration(1000) // Set the duration of the animation (in milliseconds)
+    .attr("stroke", "#2ca02c"); // Change the color if desired
+
+  // Append circles for each data point of data4
+  svg.selectAll(".dot3")
+    .data(data4[0])
+    .enter()
+    .append("circle")
+    .attr("class", "dot3")
+    .attr("cx", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+    .attr("cy", d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')))
+    .attr("r", 3)
+    .attr("fill", "#2ca02c") // Change the color if desired
+    .on("mouseover", function (event, d) {
+      const pday = d.find((item) => item.Key === 'PDAY').Value;
+      const value = d.find(e => e.Key === 'OPC_Rate').Value;
+      // Show the tooltip
+      tooltip.transition().duration(0).style("opacity", 0.9);
+      const tooltipHtml = `
+        <div>Day:${pday}</div>
+        <div>OPC Rate:${value}</div>
+      `;
+      tooltip
+        .html(tooltipHtml)
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY + "px")
+        .style("opacity", 0.9);
+    })
+    .on("mouseout", function (event, d) {
+      // Hide the tooltip
+      tooltip.transition().duration(0).style("opacity", 0);
+      d3.select("#tooltip").remove();
+    });
+
+  // Append the y axis to the right side of the chart for data4
+  svg.append("g")
+    .attr("transform", `translate(${width},0)`)
+    .call(d3.axisRight(yScaleData4))
+    .append("text")
+    .attr("fill", "#000")
+    .attr("x", 10)
+    .attr("y", -10) // Adjust the value to change the vertical position
+    .attr("dy", "0.32em")
+    .attr("text-anchor", "start")
+    .attr("font-size", "12px")
+    
+    .text("OPC Rate");
+    
+    // Append text values for each data point of data4
+// Append text values for each data point of data4 with animation
+svg.selectAll(".text-value")
+  .data(data4[0])
+  .enter()
+  .append("text")
+  .attr("class", "text-value")
+  .attr("x", d => xScale(d[0].Value) + xScale.bandwidth() / 2)
+  .attr("y", d => yScaleData4(+d.find(e => e.Key === 'OPC_Rate').Value.replace('%', '')) - 10) // Adjust the vertical position
+  .attr("dy", "0.32em")
+  .attr("text-anchor", "middle")
+  .attr("font-size", "12px")
+  .text(d => d.find(e => e.Key === 'OPC_Rate').Value)
+  .style("opacity", 0) // Start with opacity 0
+  .transition() // Apply transition
+  .duration(1000) // Duration of animation in milliseconds
+  //.delay((d, i) => i * 200) // Delay each animation by index
+  .style("opacity", 1); // Transition to full opacity
+  // Your existing code goes here...
+  
+  // Define the number of items per page for legend pagination
+    const itemsPerPage = 3;
+    
+    // Calculate the total number of legend items
+    const totalLegendItems = legendData.length;
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(totalLegendItems / itemsPerPage);
+    
+    // Define the current page
+    let currentPage = 1;
+
+    // Function to update legend based on current page
+    function updateLegend() {
+      // Clear existing legend items
+      legend.selectAll(".legend-item").remove();
+      
+      // Calculate start and end indices for current page
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, totalLegendItems);
+
+      // Render legend items for current page
+      const currentLegendItems = legendData.slice(startIndex, endIndex);
+
+      // Create a legend item for each unique key of the filtered data
+      const legendItems = legend.selectAll(".legend-item")
+        .data(currentLegendItems)
+        .join("g")
+        .attr("class", "legend-item")
+        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+      // Add a colored rectangle to each legend item
+      legendItems.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 15)
+        .attr("height", 15)
+        .attr("fill", d => customColors(d.key))
+        .on("mouseover", (event, d, i) => {
+          svg.selectAll("rect.color-" + customColors(d.key).substring(1))
+            .attr("stroke-width", 2) // Increase the stroke width to make it bold
+            .attr("stroke", "black");
+        })
+        .on("mouseout", (event, d, i) => {
+          svg.selectAll("rect.color-" + customColors(d.key).substring(1))
+            .attr("stroke", "white");
+        });
+
+      // Add text to each legend item
+      legendItems.append("text")
+        .attr("x", 20)
+        .attr("y", 10)
+        .attr("dominant-baseline", "middle")
+        .text(d => d.key);
+      
+      // Render legend pagination controls
+      renderPaginationControls();
+    }
+
+    // Function to render legend pagination controls
+    function renderPaginationControls() {
+      // Remove existing pagination controls
+      legend.selectAll(".legend-pagination").remove();
+      
+      // Append pagination controls
+      if (totalPages > 1) {
+        // Append previous page button
+        legend.append("text")
+          .attr("class", "legend-pagination")
+          .attr("x", 0)
+          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 10 : 0)
+          .text("Previous")
+          .on("click", () => {
+            if (currentPage > 1) {
+              currentPage--;
+              updateLegend();
+            }
+          });
+
+        // Append next page button
+        legend.append("text")
+          .attr("class", "legend-pagination")
+          .attr("x", 80)
+          .attr("y", (totalLegendItems > itemsPerPage) ? totalLegendItems * 20 + 10 : 0)
+          .text("Next")
+          .on("click", () => {
+            if (currentPage < totalPages) {
+              currentPage++;
+              updateLegend();
+            }
+          });
+      }
+    }
+
+    // Initial legend rendering
+    updateLegend();
+  
+  
+</script>
+</body>
 </html>
+
